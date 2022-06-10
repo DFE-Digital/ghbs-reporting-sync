@@ -3,10 +3,17 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
+trigger: none
+
+# schedules:
+# - cron: '0 */12 * * *' # https://crontab.guru/every-12-hours
+
 pool:
   vmImage: ubuntu-latest
 
 steps:
+- checkout: none
+
 - script: |
     wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
     echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
