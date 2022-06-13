@@ -1,0 +1,43 @@
+name: Build docker image
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+env:
+  GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+  GHCR_PAT: ${{ secrets.GHCR_PAT }}
+  GHCR_REPO: 'ghcr.io/dfe-digital/ghbs-reporting-sync'
+
+jobs:
+  turnstyle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: softprops/turnstyle@v1
+        name: Check workflow concurrency
+        with:
+          poll-interval-seconds: 20
+          same-branch-only: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    needs: turnstyle
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Set Docker image environment variable
+        run: echo "DOCKER_IMAGE=${GHCR_REPO}:${GITHUB_SHA}" >> $GITHUB_ENV
+
+      - name: Package repo login
+        run: echo "$GHCR_PAT" | docker login ghcr.io -u $GHCR_USERNAME --password-stdin
+
+      - name: Build
+        run: docker build -t "$DOCKER_IMAGE" .
+
+      - name: Push
+        run: docker push "$DOCKER_IMAGE"
