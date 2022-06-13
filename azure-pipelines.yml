@@ -24,11 +24,18 @@ steps:
 - script: cf install-plugin -f conduit
   displayName: 'Install Cloudfoundry - conduit plugin'
 
+- script: |
+    sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+    sudo apt-get update
+    sudo apt-get -y install postgresql-11
+  displayName: 'Install Postgres'
+
 - script: cf login -u $(CF_USER) -p $(CF_PASSWORD) -a https://api.london.cloud.service.gov.uk -s $(CF_SPACE)
   displayName: 'Log in to Cloudfoundry'
 
 - script: cf conduit $(CF_POSTGRES_SERVICE) -- pg_dump -f backup.sql
-  displayName: 'Extract database dump'
+  displayName: 'GPaaS: Extract database dump'
 
-- script: cat backup.sql | wc -l
-  displayName: 'Test extract'
+- script: psql -h $(PG_HOST) -U $(PG_USERNAME) -P $(PG_PASSWORD) -f backup.sql
+  displayName: 'Azure Postgres: Import database dump'
