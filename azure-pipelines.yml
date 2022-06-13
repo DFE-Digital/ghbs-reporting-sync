@@ -37,5 +37,5 @@ steps:
 - script: cf conduit $(CF_POSTGRES_SERVICE) -- pg_dump -f backup.sql
   displayName: 'Extract db'
 
-- script: PGPASSWORD="$(PG_PASSWORD)" psql -h $(PG_HOST) -U $(PG_USERNAME) -f backup.sql
+- script: PGPASSWORD="$(PG_PASSWORD)" psql -h $(PG_HOST) -U $(PG_USERNAME) -d $(PG_DATABASE) -f backup.sql
   displayName: 'Import extracted db'
