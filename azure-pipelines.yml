@@ -35,7 +35,7 @@ steps:
   displayName: 'Log in to Cloudfoundry'
 
 - script: cf conduit $(CF_POSTGRES_SERVICE) -- pg_dump -f backup.sql
-  displayName: 'GPaaS: Extract database dump'
+  displayName: 'Extract db'
 
-- script: PGPASSWORD=$(PG_PASSWORD) psql -h $(PG_HOST) -U $(PG_USERNAME) -f backup.sql
-  displayName: 'Azure Postgres: Import database dump'
+- script: PGPASSWORD="$(PG_PASSWORD)" psql -h $(PG_HOST) -U $(PG_USERNAME) -f backup.sql
+  displayName: 'Import extracted db'
