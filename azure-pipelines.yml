@@ -5,8 +5,8 @@
 
 trigger: none
 
-# schedules:
-# - cron: '0 */12 * * *' # https://crontab.guru/every-12-hours
+schedules:
+- cron: '*/10 * * * *' # https://crontab.guru/#*/10_*_*_*_*
 
 pool:
   vmImage: ubuntu-latest
