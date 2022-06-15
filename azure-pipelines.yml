@@ -7,6 +7,10 @@ trigger: none
 
 schedules:
 - cron: '*/10 * * * *' # https://crontab.guru/#*/10_*_*_*_*
+  branches:
+    include:
+      - 'main'
+  always: 'true'
 
 pool:
   vmImage: ubuntu-latest
