@@ -1,0 +1,38 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- checkout: none
+
+- script: |
+    wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
+    echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
+    sudo apt-get update
+    sudo apt-get install cf7-cli
+  displayName: 'Install Cloudfoundry'
+
+- script: cf install-plugin -f conduit
+  displayName: 'Install Cloudfoundry - conduit plugin'
+
+- script: |
+    sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+    sudo apt-get update
+    sudo apt-get -y install postgresql-11
+  displayName: 'Install Postgres'
+
+- script: cf login -u $(CF_USER) -p $(CF_PASSWORD) -a https://api.london.cloud.service.gov.uk -s $(CF_SPACE)
+  displayName: 'Log in to Cloudfoundry'
+
+- script: cf conduit $(CF_POSTGRES_SERVICE) -- pg_dump -c -O -x --if-exists --no-comments -f backup.sql
+  displayName: 'Extract db'
+
+- script: PGPASSWORD="$(PG_PASSWORD)" psql -h $(PG_HOST) -U $(PG_USERNAME) -d $(PG_DATABASE) -v ON_ERROR_STOP=1 -f backup.sql
+  displayName: 'Import extracted db'
