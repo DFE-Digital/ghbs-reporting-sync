@@ -6,7 +6,7 @@
 trigger: none
 
 schedules:
-- cron: '*/10 * * * *' # https://crontab.guru/#*/10_*_*_*_*
+- cron: '0 */4 * * *' # https://crontab.guru/#0_*/4_*_*_*
   branches:
     include:
       - 'main'
