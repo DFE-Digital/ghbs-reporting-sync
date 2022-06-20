@@ -1,0 +1,3 @@
+DROP EVENT TRIGGER IF EXISTS reassign_owned;
+DROP EVENT TRIGGER IF EXISTS make_readable;
+DROP EVENT TRIGGER IF EXISTS forbid_ddl_reader;
