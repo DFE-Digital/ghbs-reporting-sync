@@ -46,9 +46,10 @@ steps:
   displayName: 'Remove triggers'
 
 - script: |
+    export PGPASSWORD="$(PG_PASSWORD)"
     IFS=$',' users=($(echo "$(PG_READ_ONLY_USERS)"))
     for username in "${users[@]}"; do
       sql=$(cat grant-readonly.sql | sed "s/__PG_DATABASE__/$(PG_DATABASE)/; s/__USERNAME__/$username/")
-      PGPASSWORD="$(PG_PASSWORD)" psql -h $(PG_HOST) -U $(PG_USERNAME) -v ON_ERROR_STOP=1 -c $sql
+      echo $sql | psql -h $(PG_HOST) -U $(PG_USERNAME) -d $(PG_DATABASE) -v ON_ERROR_STOP=1 -c $sql
     done
   displayName: 'Re-add reporting user read-only permissions'
