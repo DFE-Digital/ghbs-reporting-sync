@@ -32,8 +32,11 @@ steps:
 - script: cf conduit $(CF_POSTGRES_SERVICE) -- pg_dump -c -O -x --if-exists --no-comments -f backup.sql
   displayName: 'Extract db'
 
-- script: PGPASSWORD="$(PG_PASSWORD)" psql -h $(PG_HOST) -U $(PG_USERNAME) -d $(PG_DATABASE) -v ON_ERROR_STOP=1 -f backup.sql
+- script: ./run-psql.sh -f backup.sql
   displayName: 'Import extracted db'
 
-- script: PGPASSWORD="$(PG_PASSWORD)" psql -h $(PG_HOST) -U $(PG_USERNAME) -d $(PG_DATABASE) -v ON_ERROR_STOP=1 -f remove-triggers.sql
+- script: ./run-psql.sh -f remove-triggers.sql
   displayName: 'Remove triggers'
+
+- script: ./setup-read-only-permissions.sh
+  displayName: 'Re-add reporting user permissions'
