@@ -1,3 +1,8 @@
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
 steps:
 - script: |
     wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
@@ -19,7 +24,7 @@ steps:
 - script: cf login -u $(CF_USER) -p $(CF_PASSWORD) -a https://api.london.cloud.service.gov.uk -s $(CF_SPACE)
   displayName: 'Log in to Cloudfoundry'
 
-- script: cf conduit $(CF_POSTGRES_SERVICE) -- pg_dump -c -O -x --if-exists --no-comments -f backup.sql
+- script: cf conduit $(CF_POSTGRES_SERVICE) -- pg_dump --clean --if-exists --disable-triggers --no-owner --no-privileges --no-comments > backup.sql
   displayName: 'Extract db'
 
 - script: PGPASSWORD="$(PG_PASSWORD)" psql -h $(PG_HOST) -U $(PG_USERNAME) -d $(PG_DATABASE) -v ON_ERROR_STOP=1 -f backup.sql
