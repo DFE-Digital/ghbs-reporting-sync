@@ -41,3 +41,6 @@ steps:
       echo $sql | psql -h $(PG_HOST) -U $(PG_USERNAME) -d $(PG_DATABASE) -v ON_ERROR_STOP=1 -c $sql
     done
   displayName: 'Re-add reporting user read-only permissions'
+
+- script: PGPASSWORD="$(PG_PASSWORD)" psql -h $(PG_HOST) -U $(PG_USERNAME) -d $(PG_DATABASE) -v ON_ERROR_STOP=1 -f data-transform.sql
+  displayName: 'Additional data transformations'
