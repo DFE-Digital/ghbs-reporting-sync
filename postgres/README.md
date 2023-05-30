@@ -1,4 +1,6 @@
-# ghbs-reporting-sync
+# ghbs-reporting-sync - Postgres migration
+
+These steps are related to the devops job, [for manual migration read here](README.migrateDatabase.md)
 
 |Environment|Status|
 |-|-|
@@ -31,3 +33,7 @@ GRANT SELECT ON ALL TABLES IN SCHEMA public TO <USERNAME>;
 ```
 
 Give this username and password to the person wishing to access the data for reporting purposes.
+
+## DEVOPS env var setup
+
+Documented here: [https://dfedigital.atlassian.net/wiki/spaces/GHBFS/pages/3617619969/Reporting+Database#Azure-Devops](https://dfedigital.atlassian.net/wiki/spaces/GHBFS/pages/3617619969/Reporting+Database#Azure-Devops)
