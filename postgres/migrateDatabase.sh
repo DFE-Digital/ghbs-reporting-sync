@@ -5,7 +5,7 @@ set -v
 
 backup_file="$1.backup.sql"
 
-f login -u $CF_USER -p $CF_PASSWORD -a https://api.london.cloud.service.gov.uk -s $CF_SPACE
+cf login -u $CF_USER -p $CF_PASSWORD -a https://api.london.cloud.service.gov.uk -s $CF_SPACE
 
 # Dump database from GPaaS - this won't work on GlobalProtect VPN
 cf conduit $CF_POSTGRES_SERVICE -- pg_dump -E utf8 --clean --if-exists --disable-triggers --no-owner --no-privileges --no-comments > $backup_file
