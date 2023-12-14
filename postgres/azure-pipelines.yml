@@ -38,7 +38,8 @@ steps:
     export PGPASSWORD="$(REPORT_DB_PASSWORD)"
     IFS=$',' users=($(echo "$(REPORT_DB_READ_ONLY_USERS)"))
     for username in "${users[@]}"; do
-      sql=$(cat postgres/grant-readonly.sql | sed "s/__PG_DATABASE__/$(REPORT_DB_NAME)/; s/__USERNAME__/$username/")
+      grantSqlFile=$([[ "$(echo "$(REPORT_DB_READ_ONLY_USERS_NO_SENSITIVE)" | grep $username)" == "" ]] && echo "postgres/grant-readonly.sql" || echo "postgres/grant-readonly-no-sensitive.sql")
+      sql=$(cat $grantSqlFile | sed "s/__PG_DATABASE__/$(REPORT_DB_NAME)/; s/__USERNAME__/$username/")
       echo $sql | psql -h $(REPORT_DB_HOST) -U $(REPORT_DB_USERNAME) -d $(REPORT_DB_NAME) -v ON_ERROR_STOP=1 -c $sql
     done
   displayName: 'Re-add reporting user read-only permissions'
