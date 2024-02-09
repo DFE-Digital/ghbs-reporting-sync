@@ -5,11 +5,11 @@ pool:
 
 steps:
 - task: AzureCLI@2
-  displayName: 'Add devops IP to Postgres firewall'
+  displayName: 'Add devops IP to Postgres firewalls'
   inputs:
     scriptType: bash
     scriptLocation: inlineScript
-    azureSubscription: 'S174p.azdo-deployment'
+    azureSubscription: 'S174p.azdo-deployment' # <= this value must be hard coded
     inlineScript: |
       runnerIP=$(curl -s https://icanhazip.com)
 
@@ -21,18 +21,34 @@ steps:
         --start-ip-address "$runnerIP" \
         --end-ip-address "$runnerIP"
 
+      # NOTE: postgres single server
+      az postgres server firewall-rule create \
+        --subscription "$(REPORT_DB_SUBSCRIPTION)" \
+        --resource-group "$(REPORT_DB_RG)" \
+        --server-name "$(REPORT_DB_RESOURCE_NAME)" \
+        --name allow-devops-runner \
+        --start-ip-address "$runnerIP" \
+        --end-ip-address "$runnerIP"
+
 - template: templates/sync-and-init-db.yml
 
 - task: AzureCLI@2
-  displayName: 'Remove devops IP from Postgres firewall'
+  displayName: 'Remove devops IP from Postgres firewalls'
   condition: always()
   inputs:
     scriptType: bash
     scriptLocation: inlineScript
-    azureSubscription: 'S174p.azdo-deployment'
+    azureSubscription: 'S174p.azdo-deployment' # <= this value must be hard coded
     inlineScript: |
       az postgres flexible-server firewall-rule delete --yes \
         --subscription "$(PROD_DB_SUBSCRIPTION)" \
         --resource-group "$(PROD_DB_RG)" \
         --name "$(PROD_DB_RESOURCE_NAME)" \
         --rule-name allow-devops-runner \
+
+      # NOTE: postgres single server
+      az postgres server firewall-rule delete --yes \
+        --subscription "$(REPORT_DB_SUBSCRIPTION)" \
+        --resource-group "$(REPORT_DB_RG)" \
+        --server-name "$(REPORT_DB_RESOURCE_NAME)" \
+        --name allow-devops-runner \
