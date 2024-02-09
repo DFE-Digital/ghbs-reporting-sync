@@ -9,7 +9,7 @@ steps:
   inputs:
     scriptType: bash
     scriptLocation: inlineScript
-    azureSubscription: 'S174p.azdo-deployment'
+    azureSubscription: 'S174t.azdo-deployment'
     inlineScript: |
       runnerIP=$(curl -s https://icanhazip.com)
 
@@ -29,7 +29,7 @@ steps:
   inputs:
     scriptType: bash
     scriptLocation: inlineScript
-    azureSubscription: 'S174p.azdo-deployment'
+    azureSubscription: 'S174t.azdo-deployment'
     inlineScript: |
       az postgres flexible-server firewall-rule delete --yes \
         --subscription "$(PROD_DB_SUBSCRIPTION)" \

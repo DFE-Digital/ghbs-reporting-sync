@@ -1,0 +1,26 @@
+steps:
+- script: |
+    sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+    sudo apt-get update
+    sudo apt-get -y install postgresql-11
+  displayName: 'Install Postgres'
+
+- script: PGPASSWORD="$(PROD_DB_PASSWORD)" pg_dump -h $(PROD_DB_HOST) -U $(PROD_DB_USERNAME) -d $(PROD_DB_NAME) --clean --if-exists --disable-triggers --no-owner --no-privileges --no-comments > backup.sql
+  displayName: 'Extract db'
+
+- script: PGPASSWORD="$(REPORT_DB_PASSWORD)" psql -h $(REPORT_DB_HOST) -U $(REPORT_DB_USERNAME) -d $(REPORT_DB_NAME) -v ON_ERROR_STOP=1 -f backup.sql
+  displayName: 'Import extracted db'
+
+- script: |
+    export PGPASSWORD="$(REPORT_DB_PASSWORD)"
+    IFS=$',' users=($(echo "$(REPORT_DB_READ_ONLY_USERS)"))
+    for username in "${users[@]}"; do
+      grantSqlFile=$([[ "$(echo "$(REPORT_DB_READ_ONLY_USERS_NO_SENSITIVE)" | grep $username)" == "" ]] && echo "postgres/grant-readonly.sql" || echo "postgres/grant-readonly-no-sensitive.sql")
+      sql=$(cat $grantSqlFile | sed "s/__PG_DATABASE__/$(REPORT_DB_NAME)/; s/__USERNAME__/$username/")
+      echo $sql | psql -h $(REPORT_DB_HOST) -U $(REPORT_DB_USERNAME) -d $(REPORT_DB_NAME) -v ON_ERROR_STOP=1 -c $sql
+    done
+  displayName: 'Re-add reporting user read-only permissions'
+
+- script: PGPASSWORD="$(REPORT_DB_PASSWORD)" psql -h $(REPORT_DB_HOST) -U $(REPORT_DB_USERNAME) -d $(REPORT_DB_NAME) -v ON_ERROR_STOP=1 -f postgres/data-transform.sql
+  displayName: 'Additional data transformations'
