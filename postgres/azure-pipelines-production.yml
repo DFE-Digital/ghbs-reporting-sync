@@ -7,19 +7,20 @@ steps:
 - task: AzureCLI@2
   displayName: 'Add devops IP to Postgres firewalls'
   env:
-      BUILD_BUILDNUMBER: $(Build.BuildNumber)
+      SYSTEM_DEFINITIONID: $(System.DefinitionId)
   inputs:
     scriptType: bash
     scriptLocation: inlineScript
     azureSubscription: 'S174p.azdo-deployment' # <= this value must be hard coded
     inlineScript: |
+
       runnerIP=$(curl -s https://icanhazip.com)
 
       az postgres flexible-server firewall-rule create \
         --subscription "$(PROD_DB_SUBSCRIPTION)" \
         --resource-group "$(PROD_DB_RG)" \
         --name "$(PROD_DB_RESOURCE_NAME)" \
-        --rule-name "allow-devops-runner-${BUILD_BUILDNUMBER}" \
+        --rule-name "allow-devops-runner-${SYSTEM_DEFINITIONID}" \
         --start-ip-address "$runnerIP" \
         --end-ip-address "$runnerIP"
 
@@ -27,7 +28,7 @@ steps:
         --subscription "$(REPORT_DB_SUBSCRIPTION)" \
         --resource-group "$(REPORT_DB_RG)" \
         --name "$(REPORT_DB_RESOURCE_NAME)" \
-        --rule-name "allow-devops-runner-${BUILD_BUILDNUMBER}" \
+        --rule-name "allow-devops-runner-${SYSTEM_DEFINITIONID}" \
         --start-ip-address "$runnerIP" \
         --end-ip-address "$runnerIP"
 
@@ -36,7 +37,7 @@ steps:
 - task: AzureCLI@2
   displayName: 'Remove devops IP from Postgres firewalls'
   env:
-    BUILD_BUILDNUMBER: $(Build.BuildNumber)
+    SYSTEM_DEFINITIONID: $(System.DefinitionId)
   condition: always()
   inputs:
     scriptType: bash
@@ -47,10 +48,10 @@ steps:
         --subscription "$(PROD_DB_SUBSCRIPTION)" \
         --resource-group "$(PROD_DB_RG)" \
         --name "$(PROD_DB_RESOURCE_NAME)" \
-        --rule-name "allow-devops-runner-${BUILD_BUILDNUMBER}" \
+        --rule-name "allow-devops-runner-${SYSTEM_DEFINITIONID}" \
 
       az postgres flexible-server firewall-rule delete --yes \
         --subscription "$(REPORT_DB_SUBSCRIPTION)" \
         --resource-group "$(REPORT_DB_RG)" \
         --name "$(REPORT_DB_RESOURCE_NAME)" \
-        --rule-name "allow-devops-runner-${BUILD_BUILDNUMBER}" \
+        --rule-name "allow-devops-runner-${SYSTEM_DEFINITIONID}" \
