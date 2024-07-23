@@ -6,6 +6,8 @@ pool:
 steps:
 - task: AzureCLI@2
   displayName: 'Add devops IP to Postgres firewalls'
+  env:
+      BUILD_BUILDNUMBER: $(Build.BuildNumber)
   inputs:
     scriptType: bash
     scriptLocation: inlineScript
@@ -17,7 +19,7 @@ steps:
         --subscription "$(PROD_DB_SUBSCRIPTION)" \
         --resource-group "$(PROD_DB_RG)" \
         --name "$(PROD_DB_RESOURCE_NAME)" \
-        --rule-name allow-devops-runner \
+        --rule-name "allow-devops-runner-$(BUILD_BUILDNUMBER)" \
         --start-ip-address "$runnerIP" \
         --end-ip-address "$runnerIP"
 
@@ -25,7 +27,7 @@ steps:
         --subscription "$(REPORT_DB_SUBSCRIPTION)" \
         --resource-group "$(REPORT_DB_RG)" \
         --name "$(REPORT_DB_RESOURCE_NAME)" \
-        --rule-name allow-devops-runner \
+        --rule-name "allow-devops-runner-$(BUILD_BUILDNUMBER)" \
         --start-ip-address "$runnerIP" \
         --end-ip-address "$runnerIP"
 
@@ -33,6 +35,8 @@ steps:
 
 - task: AzureCLI@2
   displayName: 'Remove devops IP from Postgres firewalls'
+  env:
+    BUILD_BUILDNUMBER: $(Build.BuildNumber)
   condition: always()
   inputs:
     scriptType: bash
@@ -43,10 +47,10 @@ steps:
         --subscription "$(PROD_DB_SUBSCRIPTION)" \
         --resource-group "$(PROD_DB_RG)" \
         --name "$(PROD_DB_RESOURCE_NAME)" \
-        --rule-name allow-devops-runner \
+        --rule-name "allow-devops-runner-$(BUILD_BUILDNUMBER)" \
 
       az postgres flexible-server firewall-rule delete --yes \
         --subscription "$(REPORT_DB_SUBSCRIPTION)" \
         --resource-group "$(REPORT_DB_RG)" \
         --name "$(REPORT_DB_RESOURCE_NAME)" \
-        --rule-name allow-devops-runner \
+        --rule-name "allow-devops-runner-$(BUILD_BUILDNUMBER)" \
