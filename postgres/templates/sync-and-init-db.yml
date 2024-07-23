@@ -8,6 +8,7 @@ steps:
 
 - script: PGPASSWORD="$(PROD_DB_PASSWORD)" pg_dump -h $(PROD_DB_HOST) -U $(PROD_DB_USERNAME) -d $(PROD_DB_NAME) --clean --if-exists --disable-triggers --no-owner --no-privileges --no-comments > backup.sql
   displayName: 'Extract db'
+  retryCountOnTaskFailure: 1
 
 - script: PGPASSWORD="$(REPORT_DB_PASSWORD)" psql -h $(REPORT_DB_HOST) -U $(REPORT_DB_USERNAME) -d $(REPORT_DB_NAME) -v ON_ERROR_STOP=1 -f backup.sql
   displayName: 'Import extracted db'
