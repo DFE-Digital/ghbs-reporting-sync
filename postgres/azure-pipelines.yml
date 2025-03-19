@@ -1,4 +1,10 @@
-trigger: none
+schedules:
+- cron: '15 * * * *'
+  displayName: Run once an hour
+  branches:
+    include:
+    - main
+  always: true
 
 pool:
   vmImage: ubuntu-latest
