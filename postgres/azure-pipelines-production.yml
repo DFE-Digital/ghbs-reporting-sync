@@ -1,6 +1,6 @@
 schedules:
-- cron: '23 * * * *'
-  displayName: Run once an hour
+- cron: '23 7-19/3 * * *'
+  displayName: Run every 3 hours from 07:23 to 19:23
   branches:
     include:
     - main
