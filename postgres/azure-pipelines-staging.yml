@@ -16,16 +16,16 @@ steps:
       az postgres flexible-server firewall-rule create \
         --subscription "$(PROD_DB_SUBSCRIPTION)" \
         --resource-group "$(PROD_DB_RG)" \
-        --name "$(PROD_DB_RESOURCE_NAME)" \
-        --rule-name allow-devops-runner \
+        --server-name "$(PROD_DB_RESOURCE_NAME)" \
+        --name allow-devops-runner \
         --start-ip-address "$runnerIP" \
         --end-ip-address "$runnerIP"
 
       az postgres flexible-server firewall-rule create \
         --subscription "$(REPORT_DB_SUBSCRIPTION)" \
         --resource-group "$(REPORT_DB_RG)" \
-        --name "$(REPORT_DB_RESOURCE_NAME)" \
-        --rule-name allow-devops-runner \
+        --server-name "$(REPORT_DB_RESOURCE_NAME)" \
+        --name allow-devops-runner \
         --start-ip-address "$runnerIP" \
         --end-ip-address "$runnerIP"
 
@@ -42,11 +42,11 @@ steps:
       az postgres flexible-server firewall-rule delete --yes \
         --subscription "$(PROD_DB_SUBSCRIPTION)" \
         --resource-group "$(PROD_DB_RG)" \
-        --name "$(PROD_DB_RESOURCE_NAME)" \
-        --rule-name allow-devops-runner \
+        --server-name "$(PROD_DB_RESOURCE_NAME)" \
+        --name allow-devops-runner \
 
       az postgres flexible-server firewall-rule delete --yes \
         --subscription "$(REPORT_DB_SUBSCRIPTION)" \
         --resource-group "$(REPORT_DB_RG)" \
-        --name "$(REPORT_DB_RESOURCE_NAME)" \
-        --rule-name allow-devops-runner \
+        --server-name "$(REPORT_DB_RESOURCE_NAME)" \
+        --name allow-devops-runner \
